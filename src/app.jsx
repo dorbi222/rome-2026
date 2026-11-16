@@ -541,17 +541,26 @@ function MorningModal({ day, onClose }) {
   );
 }
 
-/* ---------- birthday gift ---------- */
-const BDAY = Date.UTC(2026, 11, 18, 23, 0); // 19.12 00:00 Rome
-function Letter({ text, onClose }) {
+/* ---------- birthday notes (one per day) ---------- */
+const unlockAt = (d) => Date.UTC(2026, 11, 17 + d, 23, 0); // that day 00:00 Rome
+const NOTE_LABELS = ['שישי', 'שבת', 'ראשון', 'שני'];
+function notesOf(g) {
+  const n = { ...(g?.notes || {}) };
+  if (g?.text && !n[1]) n[1] = { title: '', text: g.text }; // old single greeting → birthday day
+  return n;
+}
+function Thirty({ className = '' }) {
+  return <span className={'inline-grid place-items-center rounded-full bg-gradient-to-br from-gold-light via-gold to-[#9C7A1E] font-serif font-black text-wine-deep shadow-[0_6px_18px_-6px_rgba(212,175,55,.9)] ' + className}>30</span>;
+}
+function Letter({ title, text, day, onClose }) {
   return (
     <div className="fixed inset-0 z-[85] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={onClose}>
       <div className="letter-in relative max-h-[85dvh] w-full max-w-md overflow-y-auto rounded-[28px] bg-[#FBF5E9] p-6 text-[#2b1a12] shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="pointer-events-none absolute inset-2 rounded-[22px] border border-[#D4AF37]/60" />
         <div className="text-center">
-          <div className="text-4xl">💌</div>
-          <h3 className="mt-2 font-hand text-[44px] font-bold leading-none text-[#8B1E24]">מזל טוב, בר שלי</h3>
-          <p className="mt-1 font-latin text-[15px] italic text-[#9C7A1E]"><L>Buon compleanno · 30</L></p>
+          <Thirty className="h-16 w-16 text-[26px]" />
+          <h3 className="mt-3 font-hand text-[44px] font-bold leading-[1.05] text-[#8B1E24]">{title || 'פתק מדור'}</h3>
+          <p className="mt-1 text-[13px] text-[#9C7A1E]">חוגגים 30 ברומא · יום {NOTE_LABELS[day]}</p>
         </div>
         <p className="mt-5 whitespace-pre-wrap text-[16.5px] leading-[1.85]">{text}</p>
         <p className="mt-6 text-left font-hand text-[30px] font-bold text-[#8B1E24]">שלך, דור ❤️</p>
@@ -560,26 +569,30 @@ function Letter({ text, onClose }) {
     </div>
   );
 }
-function Gift() {
+function Gift({ day }) {
   const { greeting, now } = useApp();
   const [opening, setOpening] = useState(false);
   const [show, setShow] = useState(false);
   const [shake, setShake] = useState(0);
-  const text = (greeting?.text || '').trim();
-  if (!text) return null;
-  const locked = greeting.lock && now < BDAY;
+  useEffect(() => { setShow(false); setOpening(false); }, [day]);
+  const note = notesOf(greeting)[day];
+  if (!note?.text?.trim()) return null;
+  const locked = (greeting?.lock ?? true) && now < unlockAt(day);
+  const left = unlockAt(day) - now;
   const tap = (e) => {
     if (locked) { setShake((x) => x + 1); return; }
     const r = e.currentTarget.getBoundingClientRect();
     setOpening(true); fireFx({ hearts: true, x: r.left + r.width / 2, y: r.top + 30 });
     setTimeout(() => { fireFx(); setShow(true); setOpening(false); }, 900);
   };
-  const left = BDAY - now;
   return (
     <section className="mx-4 mb-8 mt-2">
-      <div className="fade-up rounded-[30px] border border-gold/50 bg-gradient-to-b from-wine-deep to-[#3d1418] p-6 text-center text-cream shadow-[0_24px_60px_-28px_rgba(139,30,36,.9)]">
-        <p className="text-[13px] text-gold-light">יש לך מתנה קטנה מדור</p>
-        <button onClick={tap} aria-label="פתיחת המתנה" className={'gift mx-auto mt-4 block ' + (opening ? 'gift-open' : '')}>
+      <div className="fade-up relative overflow-hidden rounded-[30px] border border-gold/50 bg-gradient-to-b from-wine-deep to-[#3d1418] p-6 text-center text-cream shadow-[0_24px_60px_-28px_rgba(139,30,36,.9)]">
+        <Sparkles n={10} />
+        <Thirty className="absolute left-4 top-4 h-11 w-11 rotate-[-10deg] text-[17px]" />
+        <p className="relative text-[12px] font-bold tracking-wide text-gold">פתק יום הולדת 30 · יום {NOTE_LABELS[day]}</p>
+        <p className="relative mt-1 text-[15px] text-gold-light">יש לך מתנה קטנה מדור</p>
+        <button onClick={tap} aria-label="פתיחת המתנה" className={'gift relative mx-auto mt-4 block ' + (opening ? 'gift-open' : '')}>
           <span key={shake} className={'relative inline-block ' + (shake ? 'gift-shake' : 'gift-bob')}>
             <svg viewBox="0 0 120 120" className="h-32 w-32" aria-hidden="true">
               <defs><linearGradient id="gb" x1="0" x2="1"><stop offset="0" stopColor="#F3E5AB" /><stop offset=".5" stopColor="#D4AF37" /><stop offset="1" stopColor="#9C7A1E" /></linearGradient></defs>
@@ -594,39 +607,58 @@ function Gift() {
           </span>
         </button>
         {locked ? (
-          <p className="mt-3 text-[14px] text-cream/80">🔒 נפתחת ביום ההולדת · עוד <L>{Math.floor(left / 864e5)}</L> ימים ו-<L>{Math.floor(left / 36e5) % 24}</L> שעות</p>
+          <p className="relative mt-3 text-[14px] text-cream/80">🔒 נפתח ביום {NOTE_LABELS[day]} · עוד <L>{Math.floor(left / 864e5)}</L> ימים ו-<L>{Math.floor(left / 36e5) % 24}</L> שעות</p>
         ) : (
-          <p className="mt-3 text-[15px] font-bold text-gold-light">לחצי על המתנה 🎁</p>
+          <p className="relative mt-3 text-[15px] font-bold text-gold-light">לחצי על המתנה 🎁</p>
         )}
       </div>
-      {show && <Letter text={text} onClose={() => setShow(false)} />}
+      {show && <Letter title={note.title} text={note.text} day={day} onClose={() => setShow(false)} />}
     </section>
   );
 }
 function GreetingEditor() {
   const { greeting, setGreeting } = useApp();
-  const [draft, setDraft] = useState(greeting?.text || '');
-  const [lock, setLock] = useState(greeting?.lock ?? true);
+  const [d, setD] = useState(1);
+  const stored = notesOf(greeting);
+  const [title, setTitle] = useState(stored[1]?.title || '');
+  const [text, setText] = useState(stored[1]?.text || '');
+  const lock = greeting?.lock ?? true;
   const [saved, setSaved] = useState(false);
   const [preview, setPreview] = useState(false);
-  useEffect(() => { setDraft(greeting?.text || ''); setLock(greeting?.lock ?? true); }, [greeting?.text, greeting?.lock]);
-  const dirty = draft !== (greeting?.text || '') || lock !== (greeting?.lock ?? true);
-  const doSave = () => { setGreeting({ text: draft, lock }); setSaved(true); setTimeout(() => setSaved(false), 1800); };
+  const cur = stored[d] || { title: '', text: '' };
+  useEffect(() => { setTitle(cur.title || ''); setText(cur.text || ''); }, [d, cur.title, cur.text]);
+  const dirty = title !== (cur.title || '') || text !== (cur.text || '');
+  const write = (patch) => setGreeting({ notes: stored, lock, ...patch });
+  const doSave = () => { write({ notes: { ...stored, [d]: { title, text } } }); setSaved(true); setTimeout(() => setSaved(false), 1800); };
   return (
     <Card delay={0.04} className="border-gold/50">
-      <h3 className="font-serif text-[20px] font-bold text-espresso dark:text-cream">🎁 הברכה לבר</h3>
-      <p className="mt-1 text-[12.5px] text-espresso/60 dark:text-cream/55">בר תראה מתנה בתחתית הלו״ז שלה. כשהיא פותחת אותה, מופיע מה שתכתוב כאן. היא לא רואה את העורך.</p>
-      <textarea value={draft} onChange={(e) => setDraft(e.target.value)} rows={8} placeholder="בר שלי, ..." dir="rtl"
-        className="mt-3 w-full resize-y rounded-2xl border border-wine/15 bg-cream p-3 text-[15px] leading-relaxed text-espresso outline-none focus:border-gold dark:border-white/10 dark:bg-black/20 dark:text-cream" />
-      <button onClick={() => setLock(!lock)} className="press mt-2 flex w-full items-center gap-3 rounded-xl px-1 py-2 text-right">
+      <div className="flex items-center gap-3">
+        <Thirty className="h-10 w-10 shrink-0 text-[15px]" />
+        <div>
+          <h3 className="font-serif text-[20px] font-bold leading-tight text-espresso dark:text-cream">פתקים לבר 🎁</h3>
+          <p className="text-[12.5px] text-espresso/60 dark:text-cream/55">פתק אחר לכל יום. בר רואה מתנה בתחתית הלו״ז של אותו יום.</p>
+        </div>
+      </div>
+      <div className="no-bar mt-3 flex gap-1.5 overflow-x-auto">
+        {NOTE_LABELS.map((l, i) => (
+          <button key={i} onClick={() => setD(i)} className={'press shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-bold ' + (d === i ? 'bg-wine text-cream dark:bg-gold dark:text-wine-deep' : 'bg-wine/[.07] text-espresso/70 dark:bg-white/[.06] dark:text-cream/70')}>
+            {i === 1 ? '🎂 ' : ''}{l}{stored[i]?.text?.trim() ? ' ✓' : ''}
+          </button>
+        ))}
+      </div>
+      <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={d === 1 ? 'למשל: מזל טוב לשלושים, אהובה שלי' : 'כותרת הפתק'} dir="rtl"
+        className="mt-3 w-full rounded-2xl border border-wine/15 bg-cream px-3 py-2.5 text-[16px] font-bold text-espresso outline-none focus:border-gold dark:border-white/10 dark:bg-black/20 dark:text-cream" />
+      <textarea value={text} onChange={(e) => setText(e.target.value)} rows={7} placeholder="בר שלי, ..." dir="rtl"
+        className="mt-2 w-full resize-y rounded-2xl border border-wine/15 bg-cream p-3 text-[15px] leading-relaxed text-espresso outline-none focus:border-gold dark:border-white/10 dark:bg-black/20 dark:text-cream" />
+      <button onClick={() => write({ lock: !lock })} className="press mt-1 flex w-full items-center gap-3 rounded-xl px-1 py-2 text-right">
         <span className={'relative h-6 w-11 shrink-0 rounded-full transition-colors ' + (lock ? 'bg-wine dark:bg-gold' : 'bg-black/15 dark:bg-white/15')}><span className={'absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ' + (lock ? 'right-0.5' : 'right-[22px]')} /></span>
-        <span className="text-[14px] text-espresso/85 dark:text-cream/85">נעולה עד יום ההולדת (<L>19.12</L> בחצות)</span>
+        <span className="text-[14px] text-espresso/85 dark:text-cream/85">כל פתק נפתח רק ביום שלו (בחצות)</span>
       </button>
       <div className="mt-2 grid grid-cols-2 gap-2">
-        <button onClick={() => setPreview(true)} disabled={!draft.trim()} className="press rounded-full border-2 border-wine/60 py-2.5 text-[14px] font-bold text-wine disabled:opacity-40 dark:border-gold/50 dark:text-gold-light">תצוגה מקדימה</button>
-        <button onClick={doSave} disabled={!dirty} className="press rounded-full bg-gradient-to-l from-wine-deep to-wine py-2.5 text-[14px] font-bold text-cream disabled:opacity-50">{saved ? 'נשמר ✓' : dirty ? 'שמירה' : 'שמור'}</button>
+        <button onClick={() => setPreview(true)} disabled={!text.trim()} className="press rounded-full border-2 border-wine/60 py-2.5 text-[14px] font-bold text-wine disabled:opacity-40 dark:border-gold/50 dark:text-gold-light">תצוגה מקדימה</button>
+        <button onClick={doSave} disabled={!dirty} className="press rounded-full bg-gradient-to-l from-wine-deep to-wine py-2.5 text-[14px] font-bold text-cream disabled:opacity-50">{saved ? 'נשמר ✓' : `שמירת פתק ${NOTE_LABELS[d]}`}</button>
       </div>
-      {preview && <Letter text={draft} onClose={() => setPreview(false)} />}
+      {preview && <Letter title={title} text={text} day={d} onClose={() => setPreview(false)} />}
     </Card>
   );
 }
@@ -809,7 +841,7 @@ function App() {
   const [profile, setProfileRaw] = usePersist('profile', null);
   const [dark, setDark] = usePersist('dark', true);
   const [choices, setChoices] = useShared('choices', {});
-  const [greeting, setGreeting] = useShared('greeting', { text: '', lock: true });
+  const [greeting, setGreeting] = useShared('greeting', { notes: {}, lock: true });
   const [morning, setMorning] = useState(null);
   const [tab, setTab] = useState('trip');
   const now = useNow();
@@ -837,7 +869,7 @@ function App() {
         <div className="min-h-[100dvh] bg-cream pb-28 text-espresso dark:bg-espresso dark:text-cream">
           <Header />
           <main className="mx-auto max-w-md">
-            {tab === 'trip' && (<><Countdown onJump={jump} /><Timeline day={day} setDay={setDay} />{profile === 'bar' && <Gift />}</>)}
+            {tab === 'trip' && (<><Countdown onJump={jump} /><Timeline day={day} setDay={setDay} />{profile === 'bar' && <Gift day={day} />}</>)}
             {tab === 'hub' && <Hub openDriver={setDriver} />}
             {tab === 'dor' && <Logistics openDriver={setDriver} />}
             <p className="pb-4 text-center font-latin text-[12px] italic text-espresso/35 dark:text-cream/30"><L>Fatto con amore · D ❤ B</L></p>
