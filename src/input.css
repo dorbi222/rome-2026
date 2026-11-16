@@ -1,0 +1,31 @@
+@tailwind base; @tailwind components; @tailwind utilities;
+html{-webkit-tap-highlight-color:transparent}
+body{font-family:Heebo,system-ui,sans-serif;background:#1C1917}
+html:not(.dark) body{background:#FDFBF7}
+.no-bar{scrollbar-width:none}.no-bar::-webkit-scrollbar{display:none}
+.press{transition:transform .15s ease}.press:active{transform:scale(.96)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.fade-up{animation:fadeUp .55s cubic-bezier(.2,.8,.2,1) both}
+@keyframes tick{from{transform:translateY(-60%);opacity:0}to{transform:none;opacity:1}}
+.tick{animation:tick .35s ease-out}
+@keyframes bannerIn{from{transform:translateY(100%);opacity:0}to{transform:none;opacity:1}}
+.banner-in{animation:bannerIn .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+.pop{animation:pop .35s ease-out both}
+@keyframes twinkle{0%,100%{opacity:1;filter:drop-shadow(0 0 3px currentColor)}50%{opacity:.35;filter:none}}
+.bulb{animation:twinkle 2.4s ease-in-out infinite}
+@keyframes shimmer{to{background-position:-200% 0}}
+.gold-text{background:linear-gradient(100deg,#B8901F 0%,#F3E5AB 25%,#D4AF37 50%,#F3E5AB 75%,#B8901F 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmer 4s linear infinite}
+.shine{position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(243,229,171,.35) 50%,transparent 70%);transform:translateX(100%);animation:shine 3.2s ease-in-out infinite}
+@keyframes shine{0%{transform:translateX(100%)}60%,100%{transform:translateX(-100%)}}
+.shine-wrap{position:relative;overflow:hidden}
+.shine-wrap::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(243,229,171,.3) 50%,transparent 70%);animation:shine 3.6s ease-in-out infinite}
+@keyframes crown{0%,100%{transform:rotate(-8deg) translateY(0)}50%{transform:rotate(8deg) translateY(-3px)}}
+.crown{display:inline-block;animation:crown 2.6s ease-in-out infinite}
+@keyframes fall{from{transform:translateY(-10vh)}to{transform:translateY(110vh)}}
+.snowflake{position:absolute;top:0;border-radius:9999px;background:#F3E5AB;box-shadow:0 0 6px #D4AF37;animation:fall linear infinite}
+@keyframes ring{0%{box-shadow:0 0 0 0 rgba(212,175,55,.7)}100%{box-shadow:0 0 0 14px rgba(212,175,55,0)}}
+.now-ring{animation:ring 1.6s ease-out infinite}
+@keyframes pulseSoft{50%{opacity:.6}}.pulse-soft{animation:pulseSoft 1.6s ease-in-out infinite}
+@keyframes plane{0%,100%{transform:translateX(-3px)}50%{transform:translateX(3px)}}.plane{animation:plane 2.4s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}}
