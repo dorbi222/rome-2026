@@ -251,7 +251,7 @@ function Countdown({ onJump }) {
             <p className="text-sm text-gold-light">{phase === 'before' ? (profile === 'bar' ? 'ההרפתקה שלך מתחילה בעוד' : 'ממריאים לרומא בעוד') : 'בדרך לרומא ✈️ נוחתים בעוד'}</p>
             <span className="rounded-full bg-black/20 px-2.5 py-1 text-[11px] text-gold-light"><L>{phase === 'before' ? 'LY 383 · 10:45' : 'FCO · 13:30'}</L></span>
           </div>
-          <div className="mt-3 grid grid-cols-4 gap-2" dir="rtl">
+          <div className="mt-3 grid grid-cols-4 gap-2" dir="ltr">
             {parts.map(([lab, v]) => (
               <div key={lab} className="rounded-2xl border border-gold/25 bg-black/20 py-2.5 text-center">
                 <div className="overflow-hidden font-serif text-[1.9rem] font-black leading-none tabular-nums text-gold-light">
