@@ -29,3 +29,10 @@ html:not(.dark) body{background:#FDFBF7}
 @keyframes pulseSoft{50%{opacity:.6}}.pulse-soft{animation:pulseSoft 1.6s ease-in-out infinite}
 @keyframes plane{0%,100%{transform:translateX(-3px)}50%{transform:translateX(3px)}}.plane{animation:plane 2.4s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}}
+@keyframes sheetIn{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}.sheet-in{animation:sheetIn .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes letterIn{0%{transform:scale(.7) rotate(-4deg);opacity:0}70%{transform:scale(1.03) rotate(1deg)}100%{transform:none;opacity:1}}.letter-in{animation:letterIn .6s cubic-bezier(.2,.8,.2,1)}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-6px) rotate(2deg)}}.gift-bob{animation:bob 2.4s ease-in-out infinite}
+@keyframes gshake{0%,100%{transform:rotate(0)}20%{transform:rotate(-12deg)}40%{transform:rotate(10deg)}60%{transform:rotate(-8deg)}80%{transform:rotate(6deg)}}.gift-shake{animation:gshake .5s ease-in-out}
+.gift-lid{transform-origin:60px 47px;transition:transform .7s cubic-bezier(.3,1.4,.5,1)}
+.gift-open .gift-lid{transform:translate(18px,-46px) rotate(28deg)}
+.gift-open svg{animation:gshake .4s ease-in-out}
